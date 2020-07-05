@@ -3,7 +3,8 @@ from rc_car.models.utils import crop_input
 
 class CNNAutoPilot(nn.Module):
     '''
-    Base class for Keras models that will provide steering and throttle to guide a car.
+    Nvidia CNN end-to-end network
+    https://images.nvidia.com/content/tegra/automotive/images/2016/solutions/pdf/end-to-end-dl-using-px.pdf
     '''
     def __init__(self, input_shape=(120,160,3), roi_crop=(0,0)):
         super(CNNAutoPilot, self).__init__()

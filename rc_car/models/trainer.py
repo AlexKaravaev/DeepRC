@@ -16,7 +16,7 @@ def train(model: torch.nn.Module , criterion_angle: torch.nn.functional,
           train_dataloader: torch.utils.data.DataLoader,
           val_dataloader: torch.utils.data.DataLoader,
           num_epochs: int, lr: float, tb_log: str,
-          device: str):
+          device: str, patience: int):
     
     tb_log = './tb_logs/' + tb_log
     writer = SummaryWriter(tb_log)
@@ -24,9 +24,9 @@ def train(model: torch.nn.Module , criterion_angle: torch.nn.functional,
     path = pathlib.Path(tb_log).absolute()
     model_name = path.name + '.pt'
     model_path = str(path) + "/" + model_name
-    print(model_path)
+    logging.info(f"Saving model to {model_path}")
     # Define early stopping callback
-    early_stopping = EarlyStopping(patience=5, verbose=True,
+    early_stopping = EarlyStopping(patience=patience, verbose=True,
                                     path=model_path)
 
     total_step = len(train_dataloader)

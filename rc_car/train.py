@@ -26,7 +26,7 @@ if __name__ == "__main__":
     parser.add_argument('--augment', type=bool, help='If augment images')
 
     args = parser.parse_args()
-    
+    print(f"Augment ? {args.augment}") 
     training_data_dirs = [pathlib.Path(_dir) for _dir in args.path_to_training_data]
     dataset = DonkeyCarDataset(training_data_dirs,args.augment)
 
@@ -38,11 +38,11 @@ if __name__ == "__main__":
     train_dataset, val_dataset = torch.utils.data.random_split(dataset, (train_len, val_len))
 
     train_dataloader = torch.utils.data.DataLoader(train_dataset,
-                                             batch_size=128, shuffle=False,
+                                             batch_size=64, shuffle=False,
                                              num_workers=4)
 
     val_dataloader = torch.utils.data.DataLoader(val_dataset,
-                                              batch_size=128, shuffle=False,
+                                              batch_size=64, shuffle=False,
                                               num_workers=4)
 
     logging.info(f"Train dataset len: {len(train_dataset)}, val dataset len: {len(val_dataset)}")
@@ -61,5 +61,5 @@ if __name__ == "__main__":
 
     train(model,criterion_angle,criterion_throttle,
             optimizer,train_dataloader,val_dataloader,
-            num_epochs, learning_rate, args.model,device)
+            num_epochs, learning_rate, args.model,device, 10)
     

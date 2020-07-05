@@ -1,13 +1,31 @@
 import numpy as np
 import torch
 
-def crop_input(input_shape, roi):
+def crop_input(input_shape: list, roi: list)->list:
+    """ Crop input based on ROI
+
+    Args:
+        input_shape (list): input shape tuple
+        roi (list): roi shape tuple
+
+    Returns:
+        list: cropped input shape
+    """
     height = input_shape[0]
     new_height = height - roi[0] - roi[1]
     return (new_height, input_shape[1], input_shape[2])
     
-def pil2tensor(image,dtype):
-    "Convert PIL style `image` array to torch style image tensor."
+def pil2tensor(image: np.ndarray,dtype:np.typename)->torch.tensor:
+    """ Convert scikit image to tensor with normaliztion
+
+    Args:
+        image (np.ndarray): scikit image
+        dtype (np.typename): dtype of array to convert
+
+    Returns:
+        torch.tensor: torch tensor with dtype and normalization
+    """
+    
     a = np.asarray(image) * (1.0/255.0)
     if a.ndim==2 : a = np.expand_dims(a,2)
     a = np.transpose(a, (1, 0, 2))
