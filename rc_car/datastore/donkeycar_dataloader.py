@@ -8,7 +8,7 @@ from rc_car.models.utils import pil2tensor
 from torch.utils.data import Dataset, DataLoader
 
 class DonkeyCarDataset(Dataset):
-    """Face Landmarks dataset."""
+
 
     def __init__(self, dirs: typing.List[pathlib.Path]):
         """
@@ -66,6 +66,5 @@ class DonkeyCarDataset(Dataset):
                             corresponding_json['user/angle']
 
         sample = {'image': pil2tensor(image, np.float32), 'throttle': throttle, 'angle': angle}
-
 
         return sample

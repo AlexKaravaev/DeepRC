@@ -83,14 +83,14 @@ class CNNAutoPilot(nn.Module):
 
         self.angle_out = nn.Sequential(
             nn.Linear(in_features=50,
-                      out_features=1),
-            nn.ReLU()
+                      out_features=1)
+           
         )
 
         self.throttle_out = nn.Sequential(
             nn.Linear(in_features=50,
-                      out_features=1),
-            nn.ReLU()
+                      out_features=1)
+           
         )
 
     

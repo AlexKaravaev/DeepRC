@@ -8,7 +8,7 @@ def crop_input(input_shape, roi):
     
 def pil2tensor(image,dtype):
     "Convert PIL style `image` array to torch style image tensor."
-    a = np.asarray(image)
+    a = np.asarray(image) * (1.0/255.0)
     if a.ndim==2 : a = np.expand_dims(a,2)
     a = np.transpose(a, (1, 0, 2))
     a = np.transpose(a, (2, 1, 0))

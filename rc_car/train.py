@@ -51,7 +51,7 @@ if __name__ == "__main__":
     
     # Loss and optimizer
     learning_rate = 0.0001
-    num_epochs = 15
+    num_epochs = 100
     criterion_angle = torch.nn.MSELoss()
     criterion_throttle = torch.nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
@@ -79,6 +79,21 @@ if __name__ == "__main__":
             loss.backward()
             optimizer.step()
         
-            if (i+1) % 100 == 0:
-                print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}' 
-                       .format(epoch+1, num_epochs, i+1, total_step, loss.item()))
+        for i, goal_vector in enumerate(val_dataloader):
+            images = goal_vector['image'].to(device)
+            throttles = goal_vector['throttle'].to(device)
+            angles = goal_vector['angle'].to(device)
+            
+            with torch.no_grad():
+                val_out_angle, val_out_throttle = model(images)
+                #rint(angles, throttles)
+                #print(out_angle, out_throttle)
+                val_angle_loss = criterion_angle(val_out_angle, angles)
+                val_throttle_loss = criterion_throttle(val_out_throttle, throttles)
+                val_loss = val_angle_loss + val_throttle_loss
+                #print(loss)
+
+        
+        print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}, Val Loss: {:.4f}' 
+                   .format(epoch+1, num_epochs, i+1, total_step, loss.item(), val_loss.item()))
+    torch.save(model.state_dict(), 'rc_car/model')
