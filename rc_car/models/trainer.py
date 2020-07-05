@@ -31,7 +31,6 @@ def train(model: torch.nn.Module , criterion_angle: torch.nn.functional,
 
     total_step = len(train_dataloader)
     for epoch in range(num_epochs):
-        epoch+=1
         for i, goal_vector in enumerate(train_dataloader):
             
             images = goal_vector['image'].to(device)
@@ -48,7 +47,7 @@ def train(model: torch.nn.Module , criterion_angle: torch.nn.functional,
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            writer.add_scalar('Loss/train', loss.item(), epoch*i)
+        writer.add_scalar('Loss/train', loss.item(), epoch)
 
         for i, goal_vector in enumerate(val_dataloader):
             images = goal_vector['image'].to(device)
@@ -61,7 +60,7 @@ def train(model: torch.nn.Module , criterion_angle: torch.nn.functional,
                 val_throttle_loss = criterion_throttle(val_out_throttle, throttles)
                 val_loss = val_angle_loss + val_throttle_loss
 
-            writer.add_scalar('Loss/valid', val_loss.item(), epoch*i)
+        writer.add_scalar('Loss/valid', val_loss.item(), epoch)
         
         logging.info ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}, Val Loss: {:.4f}' 
                    .format(epoch+1, num_epochs, i+1, total_step, loss.item(), val_loss.item()))

@@ -54,12 +54,12 @@ if __name__ == "__main__":
     
     # Loss and optimizer
     learning_rate = 0.0001
-    num_epochs = 1
+    num_epochs = 100
     criterion_angle = torch.nn.MSELoss()
     criterion_throttle = torch.nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
     train(model,criterion_angle,criterion_throttle,
             optimizer,train_dataloader,val_dataloader,
-            1, learning_rate, args.model,device)
+            num_epochs, learning_rate, args.model,device)
     
