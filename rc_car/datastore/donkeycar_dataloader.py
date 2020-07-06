@@ -55,7 +55,6 @@ class DonkeyCarDataset(Dataset):
                 json_number = file.name.split('_')[1].split('.')[0]
 
                 json_file['cam/image_array'] = str(file.parents[0].absolute()) + '/' + json_file['cam/image_array']
-                
                 if self.augment:
                     new_paths_and_angles = augment(json_file['cam/image_array'],
                             json_file['user/angle'],3)

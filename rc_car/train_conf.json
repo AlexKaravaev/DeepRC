@@ -1,6 +1,6 @@
 {
     "batch_size": 64,
-    "learning_rate": 0.00001,
-    "num_epochs": 100,
+    "learning_rate": 0.0001,
+    "num_epochs": 150,
     "patience_for_early_stopping": 20
 }

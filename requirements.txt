@@ -1,1 +1,10 @@
-gym-donkeycar
+gym
+torch
+tensorboard==1.14.0
+
+opencv-python
+numpy
+scikit-image
+
+plotly
+

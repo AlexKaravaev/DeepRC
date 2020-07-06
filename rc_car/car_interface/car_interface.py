@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 import typing
+import matplotlib.pyplot as plt
 
 from rc_car.models.models import supported_models
 from rc_car.models.utils import pil2tensor
@@ -45,15 +46,15 @@ class TorchInterface(CarInterface):
 
         self.model.load_state_dict(torch.load(model_path))
         self.model = self.model.to(device)
-
-    def step(self, obs:np.ndarray)->list:
-        obs_tensor = pil2tensor(obs, np.float32).reshape(1,3,160,120)
         
-        obs_tensor = obs_tensor.to(device)
+    def step(self, obs:np.ndarray)->list:
+  
+        obs_tensor = pil2tensor(obs, np.float32).reshape(1,3,120,160).to(device)
+        
 
-        action = self.model.forward(obs_tensor)
+        action = self.model(obs_tensor)
         action = [action[0].item(), action[1].item()]
-
+        
         return action
 
 class RealRcInterface(CarInterface):

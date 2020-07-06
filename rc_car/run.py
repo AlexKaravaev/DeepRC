@@ -28,9 +28,12 @@ if __name__ == "__main__":
     obs = sim.reset()
 
     car = TorchInterface(args.model_type, args.model)
-    
+    action = [0,0]
+     
     while True:
-        action = car.step(obs)
+        
         obs, rewards, dones, info = sim.step(action)
+        
+        action = car.step(obs)
         sim.render()
     
