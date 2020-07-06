@@ -36,6 +36,17 @@ RUN apt-get update \
         libxrender-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# Install deps for Unity 
+RUN apt-get update \
+    && apt install -y cmake \
+                   libopenmpi-dev \
+                   libglu1-mesa \
+                   libgl1-mesa-glx \
+                   freeglut3 \
+                   freeglut3-dev \
+                   swig \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN cd /car && pip install -r requirements.txt 
 RUN ls /car/
 RUN cd /car/gym-donkeycar && pip install -r requirements_dev.txt && python setup.py install

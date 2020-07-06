@@ -25,5 +25,9 @@ if __name__ == "__main__":
          mode='markers'), row=1, col=1)
     
 
-    
+    fig.append_trace(go.Histogram(
+        x = json_log['ctes'],
+        name = 'Mean track error'
+    ), row=2, col=1) 
+
     fig.show()

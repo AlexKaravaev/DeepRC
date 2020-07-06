@@ -4,6 +4,7 @@ import pathlib
 import os
 import argparse
 import torch
+import json
 
 from rc_car.models.models import supported_models
 from rc_car.models.cnn import CNNAutoPilot
@@ -30,6 +31,10 @@ if __name__ == "__main__":
     training_data_dirs = [pathlib.Path(_dir) for _dir in args.path_to_training_data]
     dataset = DonkeyCarDataset(training_data_dirs,args.augment)
 
+    with open('/train_conf.json', 'r') as f:
+        train_conf = json.load(f)
+
+    logging.info(f" Starting with these params {train_conf}")
     if len(dataset) == 0:
         raise Exception(f"No training data at dirs {args.path_to_training_data} found. Check your paths")
     train_len = int(0.8*len(dataset))
@@ -38,11 +43,11 @@ if __name__ == "__main__":
     train_dataset, val_dataset = torch.utils.data.random_split(dataset, (train_len, val_len))
 
     train_dataloader = torch.utils.data.DataLoader(train_dataset,
-                                             batch_size=64, shuffle=False,
+                                             batch_size=train_conf["batch_size"], shuffle=False,
                                              num_workers=4)
 
     val_dataloader = torch.utils.data.DataLoader(val_dataset,
-                                              batch_size=64, shuffle=False,
+                                              batch_size=train_conf["batch_size"], shuffle=False,
                                               num_workers=4)
 
     logging.info(f"Train dataset len: {len(train_dataset)}, val dataset len: {len(val_dataset)}")
@@ -53,13 +58,13 @@ if __name__ == "__main__":
 
     
     # Loss and optimizer
-    learning_rate = 0.0001
-    num_epochs = 100
+    learning_rate = train_conf["learning_rate"]
+    num_epochs = train_conf["num_epochs"]
     criterion_angle = torch.nn.MSELoss()
     criterion_throttle = torch.nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
     train(model,criterion_angle,criterion_throttle,
             optimizer,train_dataloader,val_dataloader,
-            num_epochs, learning_rate, args.model,device, 10)
+            num_epochs, learning_rate, args.model,device, train_conf["patience_for_early_stopping"])
     

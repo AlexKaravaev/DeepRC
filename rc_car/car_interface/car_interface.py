@@ -5,6 +5,8 @@ import typing
 from rc_car.models.models import supported_models
 from rc_car.models.utils import pil2tensor
 
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+
 class CarInterface(object):
     def __init__(self, model_name: str):
         """Base class that is simulating interface to rc car
@@ -42,9 +44,12 @@ class TorchInterface(CarInterface):
             raise NotImplementedError(f"Model {model_name} is not supported yet")
 
         self.model.load_state_dict(torch.load(model_path))
-    
+        self.model = self.model.to(device)
+
     def step(self, obs:np.ndarray)->list:
         obs_tensor = pil2tensor(obs, np.float32).reshape(1,3,160,120)
+        
+        obs_tensor = obs_tensor.to(device)
 
         action = self.model.forward(obs_tensor)
         action = [action[0].item(), action[1].item()]
