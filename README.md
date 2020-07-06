@@ -1,5 +1,7 @@
 # mountain_road_donkey_car
 
+![Docker Image CI](https://github.com/AlexKaravaev/mountain_road_donkey_car/workflows/Docker%20Image%20CI/badge.svg)
+
 ![Alt text](media/car.png?raw=true "Self driving RC car")
 
 Reporitory for evaluating different classic constrol and DL methods for self-driving rc-cars.
