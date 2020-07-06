@@ -25,6 +25,12 @@ or in docker
 
 2. ```docker run -it --gpus 'all,"capabilities=graphics,compute,utility,video"' -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=$DISPLAY -v "$(pwd)/data:/data" -v "$(pwd)/tb_logs:/workspace/tb_logs" --rm --name mountain_car --ipc=host jb-assigment /bin/bash -c "python /car/rc_car/run.py --sim-path="/car/DonkeySimLinux/donkey_sim.x86_64" --save-logs=True --model=tb_logs/linear_without_aug/linear_without_aug.pt --model-type=cnn"```
 
+# Viewing tracks 
+After model ran on particular track, logs from that model are saved into ./logs/ directory. You can view them via 
+```
+python rc_car/plot/plotting.py --log-file=./logs/recorded_data/path_to_logfile.json
+```
+
 # Currently supported sumulators
 1. Donkey-Simulator
 
