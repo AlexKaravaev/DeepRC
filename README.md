@@ -1,6 +1,7 @@
 # mountain_road_donkey_car
 
 ![Docker Image CI](https://github.com/AlexKaravaev/mountain_road_donkey_car/workflows/Docker%20Image%20CI/badge.svg)
+![Pytest](https://github.com/AlexKaravaev/mountain_road_donkey_car/workflows/Pytest/badge.svg)
 
 ![Alt text](media/car.png?raw=true "Self driving RC car")
 
