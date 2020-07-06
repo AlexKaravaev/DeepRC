@@ -1,5 +1,7 @@
 # mountain_road_donkey_car
 
+![Alt text](media/car.png?raw=true "Self driving RC car")
+
 Reporitory for evaluating different classic constrol and DL methods for self-driving rc-cars.
 
 # Installation
