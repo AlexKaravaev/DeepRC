@@ -14,5 +14,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Init submodules
+      run: git submodule update --init --recursive 
     - name: Build the Docker image
       run: docker build -f docker/Dockerfile -t rc-car-runner .
