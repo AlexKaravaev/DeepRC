@@ -4,7 +4,7 @@ import torch
 import gym
 import argparse
 
-from rc_car.car_interface.sim_interface import GymDonkeyInterface
+from rc_car.simulator.sim_interface import GymDonkeyInterface
 from rc_car.car_interface.car_interface import TorchInterface
 
 from rc_car.models.utils import pil2tensor
