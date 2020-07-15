@@ -3,16 +3,12 @@
 import pyglet
 import numpy as np
 
+from PIL import Image
 from pyglet.window import key
 from rc_car.simulator.sim_interface import GymDonkeyInterface
+from rc_car.vision.lane_detector import SimpleLaneDetector
 
-
-window = pyglet.window.Window()
-keys = key.KeyStateHandler()
-# Register a keyboard handler
-key_handler = key.KeyStateHandler()
-window.push_handlers(key_handler)
-
+    
 class TeleopClient:
     def __init__(self, n_episodes, env):
         self.i = 0
@@ -27,7 +23,31 @@ class TeleopClient:
         self.max_episodes = n_episodes
         self.env = env
         self.step_count = 0
-                
+        self.obs = np.empty([0,0])
+        
+        self.ld_detector = SimpleLaneDetector()
+        
+    def cv2glet(self, img):
+        '''Assumes image is in BGR color space. Returns a pyimg object'''
+
+        
+        rows, cols, channels = img.shape
+        raw_img = Image.fromarray(img).tobytes()
+
+        top_to_bottom_flag = -1
+        bytes_per_row = channels*cols
+        pyimg = pyglet.image.ImageData(width=cols, 
+                                   height=rows, 
+                                   format='RGB', 
+                                   data=raw_img, 
+                                   pitch=top_to_bottom_flag*bytes_per_row)
+        return pyimg
+    
+    def latest_frames_with_detected_lanes(self):
+        if not self.obs.any():
+            return None, None
+        return self.cv2glet(self.ld_detector.detect_lanes(self.obs)), self.cv2glet(self.obs)
+     
     def update(self, dt):
         """
         This function is called at every frame to handle
@@ -52,6 +72,7 @@ class TeleopClient:
             action *= 1.5
 
         obs, reward, done, info = self.env.step(action)
+        self.obs = obs
         print(action)
         self.episode_reward += reward
         print('step_count = %s, reward=%.3f' % (self.step_count, reward))
@@ -95,7 +116,26 @@ if __name__ == "__main__":
     #Make an environment test our trained policy
     sim = GymDonkeyInterface("donkey-mountain-track-v0", "/home/robot/DonkeySimLinux/donkey_sim.x86_64" ,9091, './logs')
             
+    
+    window = pyglet.window.Window()
+    keys = key.KeyStateHandler()
+    # Register a keyboard handler
+    key_handler = key.KeyStateHandler()
+    window.push_handlers(key_handler)
+
+    
     uw = TeleopClient(50, sim)
+   
+    
+    @window.event
+    def on_draw():
+        window.clear()
+        lane_video, video = uw.latest_frames_with_detected_lanes()
+        if video:
+            
+            video.blit(10,10)
+            lane_video.blit(10,200)
+        
     pyglet.clock.schedule_interval(uw.update, 1.0 / 120.0)
 
 
