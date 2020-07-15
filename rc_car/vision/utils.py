@@ -23,6 +23,19 @@ hough_max_line_gap = 2 #40
 thickness = 15
 crop_from_top = 20
 
+def minmax_scale(input_arr):
+    """
+
+    :param input_arr:
+    :return:
+    """
+    min_val = np.min(input_arr)
+    max_val = np.max(input_arr)
+
+    output_arr = (input_arr - min_val) * 255.0 / (max_val - min_val)
+
+    return output_arr
+
 def grayscale(img):
     """Applies the Grayscale transform
     This will return an image with only one color channel
