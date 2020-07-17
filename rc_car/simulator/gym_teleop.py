@@ -2,11 +2,12 @@
 # manual
 import pyglet
 import numpy as np
+import cv2
 
 from PIL import Image
 from pyglet.window import key
 from rc_car.simulator.sim_interface import GymDonkeyInterface
-from rc_car.vision.lane_detector import SimpleLaneDetector
+from rc_car.vision.lane_detector import SimpleLaneDetector, UFNetLaneDetector
 
     
 class TeleopClient:
@@ -25,12 +26,16 @@ class TeleopClient:
         self.step_count = 0
         self.obs = np.empty([0,0])
         
-        self.ld_detector = SimpleLaneDetector()
-        
+        #self.ld_detector = LaneNetLaneDetector('/home/robot/dev/DeepRC/weights/tusimple_lanenet.ckpt')
+        #self.ld_detector = SimpleLaneDetector()
+        self.ld_detector = UFNetLaneDetector('./weights/tusimple_18.pth')
+
     def cv2glet(self, img):
         '''Assumes image is in BGR color space. Returns a pyimg object'''
 
-        
+        print(img.shape)
+        cv2.resize(img, (160,120)) 
+        print(img.shape)
         rows, cols, channels = img.shape
         raw_img = Image.fromarray(img).tobytes()
 
@@ -77,7 +82,9 @@ class TeleopClient:
         self.episode_reward += reward
         print('step_count = %s, reward=%.3f' % (self.step_count, reward))
 
+        cv2.imwrite(f'./test_dataset/{self.step_count}.jpg', cv2.cvtColor(obs, cv2.COLOR_BGR2RGB))
 
+        self.step_count += 1
 
         self.actions.append(action)
         self.observations.append(obs)

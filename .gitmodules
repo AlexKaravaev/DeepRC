@@ -1,3 +1,6 @@
 [submodule "gym-donkeycar"]
 	path = gym-donkeycar
 	url = https://github.com/AlexKaravaev/gym-donkeycar.git
+[submodule "rc_car/vision/uf_detector"]
+	path = rc_car/vision/uf_detector
+	url = https://github.com/cfzd/Ultra-Fast-Lane-Detection.git

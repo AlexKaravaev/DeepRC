@@ -2,7 +2,11 @@ import numpy as np
 import cv2
 import tensorflow as tf
 import os.path as ops
+import torch
+import scipy.special
+import torchvision.transforms as transforms
 
+from PIL import Image
 
 from rc_car.vision.utils import *
 from abc import ABCMeta, abstractmethod
@@ -13,6 +17,8 @@ from lanenet_model import lanenet_postprocess
 from local_utils.config_utils import parse_config_utils
 from local_utils.log_util import init_logger
 
+from rc_car.vision.uf_detector.model.model import parsingNet
+from rc_car.vision.uf_detector.utils.common import merge_config
 
 CFG = parse_config_utils.lanenet_cfg
 LOG = init_logger.get_logger(log_file_name_prefix='lanenet_test')
@@ -24,7 +30,64 @@ class LaneDetector(metaclass=ABCMeta):
     def detect_lanes(self, image: np.ndarray)->np.ndarray:
         pass
     
+class UFNetLaneDetector(LaneDetector):
 
+    def __init__(self, weights_path:str):
+        cls_num_per_lane = 56
+        backbone = '18'
+        self.griding_num = 100
+        self.net = net = parsingNet(pretrained = False, backbone=backbone,cls_dim = (self.griding_num+1,cls_num_per_lane,4),
+                    use_aux=False).cuda()
+        state_dict = torch.load(weights_path, map_location='cpu')['model']
+        compatible_state_dict = {}
+        for k, v in state_dict.items():
+            if 'module.' in k:
+                compatible_state_dict[k[7:]] = v
+            else:
+                compatible_state_dict[k] = v
+        self.net.load_state_dict(state_dict)
+        self.net.eval()
+        self.img_transform = transforms.Compose([
+                                transforms.Resize((288, 800)),
+                                transforms.ToTensor(),
+                                transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
+                            ])
+    
+    def _postprocess(self, orig_img: np.ndarray, detections: np.ndarray)->np.ndarray:
+        col_sample = np.linspace(0, 800-1, self.griding_num)
+        col_sample_w = col_sample[1] - col_sample[0]
+
+        out_j = detections[0].data.cpu().numpy()
+        out_j = out_j[:, ::-1, :]
+        prob = scipy.special.softmax(out_j[:-1, :, :], axis=0)
+        idx = np.arange(self.griding_num) + 1
+        idx = idx.reshape(-1, 1, 1)
+        loc = np.sum(prob * idx, axis=0)
+        out_j = np.argmax(out_j, axis=0)
+        loc[out_j == self.griding_num] = 0
+        out_j = loc
+            
+        vis = cv2.cvtColor(np.array(orig_img), cv2.COLOR_RGB2BGR)
+        print(f"Vis shape {vis.shape}")
+        for i in range(out_j.shape[1]):
+            if np.sum(out_j[:, i] != 0) > 2:
+                for k in range(out_j.shape[0]):
+                    if out_j[k, i] > 0:
+                        ppp = (int(out_j[k, i] * col_sample_w * 1640 / 800) - 1, int(590 - k * 20) - 1)
+                        cv2.circle(vis,ppp,5,(0,255,0),-1)
+        return vis
+
+
+    def detect_lanes(self, img: np.ndarray)->np.ndarray:
+        img = Image.fromarray(img.astype('uint8'), 'RGB')
+        img = self.img_transform(img).resize(1,3,288,800)
+
+        orig_img = img
+
+        with torch.no_grad():
+            out = self.net(img.cuda())
+        return self._postprocess(orig_img, out)    
+    
 class LaneNetLaneDetector(LaneDetector):
     
     def __init__(self, weights_path:str):
@@ -71,8 +134,10 @@ class LaneNetLaneDetector(LaneDetector):
         for i in range(CFG.MODEL.EMBEDDING_FEATS_DIMS):
             instance_seg_image[0][:, :, i] = minmax_scale(instance_seg_image[0][:, :, i])
         embedding_image = np.array(instance_seg_image[0], np.uint8)[:, :, (0, 1, 2)]
+        bin_img = cv2.cvtColor(np.uint8(binary_seg_image[0]*255),cv2.COLOR_GRAY2RGB)
         
         return weighted_img(mask_image, image_vis)
+
 class SimpleLaneDetector(LaneDetector):
     """ Taken from CarND Udacity course. Simple as it can be """
      
