@@ -33,9 +33,9 @@ class LaneDetector(metaclass=ABCMeta):
 class UFNetLaneDetector(LaneDetector):
 
     def __init__(self, weights_path:str):
-        cls_num_per_lane = 56
+        cls_num_per_lane = 18
         backbone = '18'
-        self.griding_num = 100
+        self.griding_num = 200
         self.net = net = parsingNet(pretrained = False, backbone=backbone,cls_dim = (self.griding_num+1,cls_num_per_lane,4),
                     use_aux=False).cuda()
         state_dict = torch.load(weights_path, map_location='cpu')['model']
@@ -80,12 +80,13 @@ class UFNetLaneDetector(LaneDetector):
 
     def detect_lanes(self, img: np.ndarray)->np.ndarray:
         img = Image.fromarray(img.astype('uint8'), 'RGB')
-        img = self.img_transform(img).resize(1,3,288,800)
-
         orig_img = img
+        img = self.img_transform(img).resize(1,3,288,800)
+        print(f"orig size {img.size()}")
 
         with torch.no_grad():
             out = self.net(img.cuda())
+        print(f"out size {out.size()}")
         return self._postprocess(orig_img, out)    
     
 class LaneNetLaneDetector(LaneDetector):
