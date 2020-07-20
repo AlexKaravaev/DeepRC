@@ -28,14 +28,12 @@ class TeleopClient:
         
         #self.ld_detector = LaneNetLaneDetector('/home/robot/dev/DeepRC/weights/tusimple_lanenet.ckpt')
         #self.ld_detector = SimpleLaneDetector()
-        self.ld_detector = UFNetLaneDetector('./weights/tusimple_18.pth')
+        self.ld_detector = UFNetLaneDetector('./weights/culane_18.pth')
 
     def cv2glet(self, img):
         '''Assumes image is in BGR color space. Returns a pyimg object'''
 
-        print(img.shape)
-        cv2.resize(img, (160,120)) 
-        print(img.shape)
+        img = cv2.resize(img, (160,120))
         rows, cols, channels = img.shape
         raw_img = Image.fromarray(img).tobytes()
 
@@ -43,7 +41,7 @@ class TeleopClient:
         bytes_per_row = channels*cols
         pyimg = pyglet.image.ImageData(width=cols, 
                                    height=rows, 
-                                   format='RGB', 
+                                   format='BGR', 
                                    data=raw_img, 
                                    pitch=top_to_bottom_flag*bytes_per_row)
         return pyimg
@@ -78,11 +76,10 @@ class TeleopClient:
 
         obs, reward, done, info = self.env.step(action)
         self.obs = obs
-        print(action)
         self.episode_reward += reward
         print('step_count = %s, reward=%.3f' % (self.step_count, reward))
 
-        cv2.imwrite(f'./test_dataset/{self.step_count}.jpg', cv2.cvtColor(obs, cv2.COLOR_BGR2RGB))
+        #cv2.imwrite(f'./test_dataset/{self.step_count}.jpg', cv2.cvtColor(obs, cv2.COLOR_BGR2RGB))
 
         self.step_count += 1
 
@@ -100,11 +97,8 @@ class TeleopClient:
         
         if self.episodes_played == self.max_episodes:
             print("Terminating because max_episodes reached")
-            #time.sleep(4)
             self.rewards        = np.array(self.rewards)
             self.episode_starts = np.array(self.episode_starts[:-1])
-            #self.actions        = np.concatenate(self.actions).reshape((-1,) + env.action_space.shape)
-            #self.observations   = np.concatenate(self.observations).reshape((-1,) + env.observation_space.shape)
             self.observations   = np.array(self.observations)
             self.observations   = self.observations.reshape((self.observations.shape[0], self.observations.shape[-1]))
             self.actions        = np.array(self.actions)

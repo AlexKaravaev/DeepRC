@@ -42,7 +42,7 @@ class GymDonkeyInterface(CarInterface):
             env_name (str, optional): Track name. 
             log_path (str, optional): Path to save this run logs. Defaults to None.
         """
-        cam = (1640, 590, 3)
+        cam = (800, 288, 3)
         self.env = gym.make(env_name, exe_path=exe_path, port=port,cam_resolution=cam)
         cam_config = {
             #"fov" : 150,
