@@ -62,12 +62,26 @@ class UFNetLaneDetector(LaneDetector):
         out_j = loc
             
         vis = cv2.cvtColor(np.array(orig_img), cv2.COLOR_RGB2BGR)
+        lanes = []
+        last_y = -1
+
         for i in range(out_j.shape[1]):
             if np.sum(out_j[:, i] != 0) > 2:
                 for k in range(out_j.shape[0]):
                     if out_j[k, i] > 0:
                         ppp = (int(out_j[k, i] * col_sample_w * 800 / 800) - 1, int(288 - k * 10) - 1)
+                        x, y = ppp
+                        if abs(y - last_y) > 11:
+                            lanes.append([ppp])
+                        last_y = y
+                        #print(ppp)
+                        lanes[-1].append(ppp)
                         cv2.circle(vis,ppp,5,(0,255,0),-1)
+
+        for i,lane in enumerate(lanes):
+            print(f"Lane {i}")
+            print(lane)
+
         return vis
 
 
