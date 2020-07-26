@@ -33,7 +33,7 @@ class CarInterface(object):
 class GymDonkeyInterface(CarInterface):
 
     def __init__(self, env_name: str,
-                 exe_path: str, port: int, log_path: str=None):
+                 exe_path: str, port: int, log_path: str=None, cam_res: tuple=(800,288,3)):
         """ Interface for OpenAi gym donkeycar
 
         Args:
@@ -42,20 +42,11 @@ class GymDonkeyInterface(CarInterface):
             env_name (str, optional): Track name. 
             log_path (str, optional): Path to save this run logs. Defaults to None.
         """
-        cam = (800, 288, 3)
-        self.env = gym.make(env_name, exe_path=exe_path, port=port,cam_resolution=cam)
+        self.env = gym.make(env_name, exe_path=exe_path, port=port,cam_resolution=cam_res)
         cam_config = {
-            #"fov" : 150,
-            #"fish_eye_x" : 0.0,
-            #"fish_eye_y" : 0.0,
-            "img_w" : cam[0],
-            "img_h" : cam[1],
-            "img_d" : cam[2],
-            #"img_enc" : "PNG",
-            #"offset_x" : 0.0,
-            #"offset_y" : 0.0,
-            #"offset_z" : 0.0,
-            #"rot_x" : 0.0
+            "img_w" : cam_res[0],
+            "img_h" : cam_res[1],
+            "img_d" : cam_res[2],
         }
         self.env.viewer.set_cam_config(**cam_config)
 

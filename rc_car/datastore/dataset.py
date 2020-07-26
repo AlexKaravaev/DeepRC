@@ -29,7 +29,7 @@ def convert_labelbox_to_culane(path_to_json, path_for_save):
                 for point in object["line"]:
                     lanes[-1].extend([point["x"], point["y"]])
 
-        assert len(lanes) == 3
+        #assert len(lanes) == 3
         id_to_lanes[uuid] = lanes
     datasets = client.get_datasets(where=Dataset.name == "Mountain-Road")
     for dataset_it in datasets:
@@ -49,5 +49,5 @@ def convert_labelbox_to_culane(path_to_json, path_for_save):
                 out_lanes.write(" ".join(str(coord) for coord in lane) + apdx)
 
 if __name__=="__main__":
-    convert_labelbox_to_culane('/home/robot/dev/DeepRC/data/export-2020-07-22T14_33_24.352Z.json', './lanes_dataset/')
+    convert_labelbox_to_culane('/home/robot/dev/DeepRC/data/dataset.json', './lanes_dataset/')
 
