@@ -43,12 +43,20 @@ class GymDonkeyInterface(CarInterface):
             log_path (str, optional): Path to save this run logs. Defaults to None.
         """
         self.env = gym.make(env_name, exe_path=exe_path, port=port,cam_resolution=cam_res)
-        cam_config = {
+        self.cam_config = {
+            "fov":90,
+            "fish_eye_x":0,
+            "fish_eye_y":0,
             "img_w" : cam_res[0],
             "img_h" : cam_res[1],
             "img_d" : cam_res[2],
+            "img_enc": 0,
+            "offset_x": 0,
+            "offset_y": 0.5,
+            "offset_z": 1,
+            "rot_x": 0
         }
-        self.env.viewer.set_cam_config(**cam_config)
+        self.env.viewer.set_cam_config(**self.cam_config)
 
         self.path_to_save_logs = None
         if log_path:
