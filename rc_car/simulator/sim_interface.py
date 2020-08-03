@@ -1,8 +1,9 @@
+
 import gym_donkeycar
+import gym
 import atexit
 import json
 import datetime
-import gym
 import numpy as np
 import os
 
@@ -33,7 +34,7 @@ class CarInterface(object):
 class GymDonkeyInterface(CarInterface):
 
     def __init__(self, env_name: str,
-                 exe_path: str, port: int, log_path: str=None, cam_res: tuple=(800,288,3)):
+                 exe_path: str, port: int, log_path: str=None, cam_res: tuple=(160,120,3)):
         """ Interface for OpenAi gym donkeycar
 
         Args:
@@ -42,7 +43,24 @@ class GymDonkeyInterface(CarInterface):
             env_name (str, optional): Track name. 
             log_path (str, optional): Path to save this run logs. Defaults to None.
         """
-        self.env = gym.make(env_name, exe_path=exe_path, port=port,cam_resolution=cam_res)
+
+        conf = {"exe_path": exe_path,
+                "host": "127.0.0.1",
+                "port": port,
+
+                "body_style": "donkey",
+                "body_rgb": (128, 128, 128),
+                "car_name": "me",
+                "font_size": 100,
+
+                "racer_name": "test",
+                "country": "Russia",
+                "bio": "Test",
+
+                "max_cte": 20,
+                }
+
+        self.env = gym.make(env_name, conf=conf)
         cam_config = {
             "img_w" : cam_res[0],
             "img_h" : cam_res[1],

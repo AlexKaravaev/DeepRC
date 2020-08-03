@@ -2,6 +2,12 @@
 import os
 import json
 import urllib.request
+import numpy as np
+import cv2
+import logging
+import time
+
+from abc import ABCMeta, abstractmethod
 from labelbox import Client, Dataset
 
 def convert_labelbox_to_culane(path_to_json, path_for_save):
@@ -47,6 +53,49 @@ def convert_labelbox_to_culane(path_to_json, path_for_save):
             for i, lane in enumerate(lanes_for_id):
                 apdx = '\n' if i != len(lanes_for_id)-1 else ''
                 out_lanes.write(" ".join(str(coord) for coord in lane) + apdx)
+
+
+class DatasetRecorder(metaclass=ABCMeta):
+
+    @abstractmethod
+    def write_state(self):
+        pass
+
+class DonkeyDatasetRecorder(DatasetRecorder):
+
+    def __init__(self, write_dir):
+        self.state = None
+        self.image = None
+        self.write_dir = os.path.expanduser(write_dir)
+
+        exists = os.path.exists(self.write_dir)
+        if not exists:
+            os.makedirs(self.write_dir)
+
+        self.i = self.get_last_idx()
+        logging.info(f"Starting with {self.i} index")
+
+    def get_last_idx(self):
+        files = os.listdir(self.write_dir)
+        record_list = [file for file in files if file.endswith('.json')]
+        if len(record_list) == 0:
+            return 1
+
+        sort_key = lambda fn: int(fn.split('_')[-1].split('.')[0].split('.')[0])
+        record_list = sorted(record_list, key=sort_key)
+
+        # Split record_1.json and return only number
+        return sort_key(record_list[-1])
+
+    def write_state(self, image:np.ndarray, state:dict):
+        img_name = f"{self.i}_cam-image_array_.jpg"
+        cv2.imwrite(self.write_dir + "/" + img_name, image)
+        state["cam/image_array"] = img_name
+
+        with open(f"{self.write_dir}/record_{self.i}.json", 'w') as f:
+            json.dump(state, f)
+
+        self.i += 1
 
 if __name__=="__main__":
     convert_labelbox_to_culane('/home/robot/dev/DeepRC/data/dataset.json', './lanes_dataset/')
